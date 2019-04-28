@@ -11,6 +11,12 @@ import (
 
 func main() {
 	list := flag.Bool("l", false, "List DB contents.")
+	flag.Usage = func() {
+		message := "%s directory/pattern\n" +
+			"or\n" +
+			"%s -l\n"
+		fmt.Fprintf(flag.CommandLine.Output(), message, os.Args[0], os.Args[0])
+	}
 	flag.Parse()
 
 	searchPtr := new(search.LCSSearch)
