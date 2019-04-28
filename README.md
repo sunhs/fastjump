@@ -31,6 +31,17 @@ You can check the database with:
 
     fj -l
 
+This will print the `index`, `pattern`, `path`, `weight` of each record.
+
+You can remove one of the records with a specified index:
+
+    fj -r i
+
+And you can update one of the records with a specified index given a new pattern:
+
+    fj -m i,pattern
+
+Due to the limitation of the built-in `flag` package, the index and the pattern should be one string, with a comma separating them.
 
 ## Database and config files
 

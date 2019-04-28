@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // LoadDB loads the local DB file.
@@ -121,8 +122,56 @@ func (lcsSearch *LCSSearch) updateDB(ind int, item LCSDBItem) {
 
 // ListDB prints the DB contents.
 func (lcsSearch *LCSSearch) ListDB() {
+	lenPattern, lenPath := 0, 0
 	for i := 0; i < len(lcsSearch.db); i++ {
-		item := lcsSearch.db[i]
-		fmt.Printf("%s, %s, %d\n", item.Pattern, item.Path, item.Weight)
+		lenPattern = Max(lenPattern, len(lcsSearch.db[i].Pattern))
+		lenPath = Max(lenPath, len(lcsSearch.db[i].Path))
 	}
+	lenPattern += 5
+	lenPath += 5
+
+	for i := 0; i < len(lcsSearch.db); i++ {
+		fmt.Printf("%-5d", i)
+		item := lcsSearch.db[i]
+		patternEmpty := strings.Repeat(" ", lenPattern-len(item.Pattern))
+		pattern := item.Pattern + patternEmpty
+		fmt.Print(pattern)
+		pathEmpty := strings.Repeat(" ", lenPath-len(item.Path))
+		path := item.Path + pathEmpty
+		fmt.Print(path, item.Weight, "\n")
+	}
+}
+
+// RmRecord removes a record in the DB.
+func (lcsSearch *LCSSearch) RmRecord(ind int) error {
+	lenDB := len(lcsSearch.db)
+	if ind >= lenDB {
+		return fmt.Errorf("index %d exceeds DB length %d", ind, lenDB)
+	}
+	lcsSearch.db = append(lcsSearch.db[:ind], lcsSearch.db[ind+1:]...)
+
+	f, _ := os.Create(lcsSearch.dbPath)
+	defer f.Close()
+
+	enc := gob.NewEncoder(f)
+	enc.Encode(&lcsSearch.db)
+
+	return nil
+}
+
+// UpdateRecord updates the ind-th record with the given pattern.
+func (lcsSearch *LCSSearch) UpdateRecord(ind int, pattern string) error {
+	lenDB := len(lcsSearch.db)
+	if ind >= lenDB {
+		return fmt.Errorf("index %d exceeds DB length %d", ind, lenDB)
+	}
+	lcsSearch.db[ind].Pattern = pattern
+
+	f, _ := os.Create(lcsSearch.dbPath)
+	defer f.Close()
+
+	enc := gob.NewEncoder(f)
+	enc.Encode(&lcsSearch.db)
+
+	return nil
 }
