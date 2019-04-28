@@ -1,9 +1,7 @@
 fj() {
     local output="$(fastjump ${@})"
-    if [ -d ${output} ]
-    then
-        cd "${output}"
-    else
-        echo "${output}"
+    if [[ "$#" -eq 1 && "$1" != "-l" ]]
+    then cd "${output}"
+    else echo "${output}"
     fi
 }
