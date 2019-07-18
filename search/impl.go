@@ -72,6 +72,9 @@ func (lcsSearch *LCSSearch) Search(query string) (resString string) {
 			lcsSearch.updateDB(i, lcsSearch.db[i])
 			return
 		}
+	}
+
+	for i := 0; i < len(lcsSearch.db); i++ {
 		if hit, _ := LCSImpl(query, lcsSearch.db[i].Path); hit {
 			resString = lcsSearch.db[i].Path
 			lcsSearch.db[i].Pattern = query
