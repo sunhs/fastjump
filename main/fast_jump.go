@@ -80,7 +80,7 @@ func main() {
 	}
 	pattern := args[0]
 	pattern = utils.ExpandUser(pattern)
-	if strings.HasSuffix(pattern, "/") {
+	if len(pattern) > 1 && strings.HasSuffix(pattern, "/") {
 		pattern = pattern[:len(pattern)-1]
 	}
 
