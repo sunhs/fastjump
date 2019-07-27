@@ -44,11 +44,12 @@ func (lcsSearch *LCSSearch) LoadConf(fPath string) error {
 	return nil
 }
 
-// Search matche a query string with history paths in the DB.
-// 1. If the query string is a valid path on the os, simply use string ==
-// to match or insert it into the DB.
-// 2. If the query string is a search pattern, use LCS to match it
-// or return not found.
+// Search matches a query string with history paths in the DB.
+// 1. If the query string is a valid path on the os, simply jumps to it.
+// 2. If the query string matches a pattern in the DB, jumps to the path
+// corresponding to the pattern.
+// 3. Searches a path with LCS. If hit, jumps to it.
+// 4. Returns empty.
 func (lcsSearch *LCSSearch) Search(query string) (resString string) {
 	fInfo, err := os.Stat(query)
 	dirExists := err == nil && fInfo.IsDir()
@@ -75,7 +76,7 @@ func (lcsSearch *LCSSearch) Search(query string) (resString string) {
 	}
 
 	for i := 0; i < len(lcsSearch.db); i++ {
-		if hit, _ := LCSImpl(query, lcsSearch.db[i].Path); hit {
+		if hit, _ := reverseLCSImpl(query, lcsSearch.db[i].Path); hit {
 			resString = lcsSearch.db[i].Path
 			lcsSearch.db[i].Pattern = query
 			lcsSearch.updateDB(i, lcsSearch.db[i])
