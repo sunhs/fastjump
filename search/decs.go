@@ -21,7 +21,7 @@ type Search interface {
 	UpdateRecord(int, string) error
 }
 
-// Config specifies how many history paths and how many history patter to store.
+// Config specifies how many history paths to store.
 type Config struct {
 	NPaths int
 }
