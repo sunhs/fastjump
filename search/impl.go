@@ -68,7 +68,7 @@ func (lcsSearch *LCSSearch) Search(query string) (resString string) {
 	}
 
 	for i := 0; i < len(lcsSearch.db); i++ {
-		if query == lcsSearch.db[i].Pattern {
+		if strings.ToLower(query) == strings.ToLower(lcsSearch.db[i].Pattern) {
 			resString = lcsSearch.db[i].Path
 			lcsSearch.updateDB(i, lcsSearch.db[i])
 			return
@@ -76,7 +76,7 @@ func (lcsSearch *LCSSearch) Search(query string) (resString string) {
 	}
 
 	for i := 0; i < len(lcsSearch.db); i++ {
-		if hit, _ := reverseLCSImpl(query, lcsSearch.db[i].Path); hit {
+		if hit, _ := reverseLCSImpl(strings.ToLower(query), strings.ToLower(lcsSearch.db[i].Path)); hit {
 			resString = lcsSearch.db[i].Path
 			lcsSearch.db[i].Pattern = query
 			lcsSearch.updateDB(i, lcsSearch.db[i])
