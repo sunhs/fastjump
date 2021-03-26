@@ -4,7 +4,7 @@ fj() {
 
     output=$(fastjump $@)
     code=$?
-    if [[ $# -lt 1 && $args != "-l" && $code -eq 0 ]]; then
+    if [[ $# -le 1 && $@ != "-l" && $code -eq 0 ]]; then
         cd "$output"
     elif [[ $1 = "-l" || $code -ne 0 ]]; then
         echo "$output"
