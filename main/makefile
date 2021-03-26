@@ -21,9 +21,12 @@ build:
 	@$(GOBUILD)\
 		-o $(BIN) \
 
-install:
+install: build
 	@echo "installing......"
-	@mv $(BIN) $(GOBIN)
+	@mkdir -p ~/.local/bin/
+	@rm -f ~/.local/bin/$(BIN) ~/.local/bin/$(SH)
+	@mv $(BIN) ~/.local/bin/$(BIN)
+	@cp $(SH) ~/.local/bin/$(SH)
 
 # clean binary file
 clean:

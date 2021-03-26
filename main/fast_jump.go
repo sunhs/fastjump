@@ -74,9 +74,14 @@ func main() {
 	}
 
 	args := flag.Args()
-	if len(args) != 1 {
-		fmt.Println("should contain exactly 1 argument")
-		os.Exit(1)
+	// Go to home.
+	if len(args) == 0 {
+		args = append(args, "~")
+	}
+	// Go back.
+	if len(args) == 1 && args[0] == "-" {
+		fmt.Println("-")
+		return
 	}
 	pattern := args[0]
 	pattern = utils.ExpandUser(pattern)
