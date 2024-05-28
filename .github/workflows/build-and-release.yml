@@ -42,7 +42,7 @@ jobs:
 
   upload-sh:
     runs-on: ubuntu-latest
-    needs: [create-release]
+    needs: [build, create-release]
     steps:
       - uses: actions/checkout@main
 
@@ -57,7 +57,7 @@ jobs:
 
   upload-bin:
     runs-on: ubuntu-latest
-    needs: [create-release]
+    needs: [build, create-release]
     strategy:
       matrix:
         platform: [macos-arm64, macos-amd64, linux-amd64]
