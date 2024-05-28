@@ -1,4 +1,4 @@
-package fastjump
+package jumper
 
 import (
 	"os"
@@ -19,7 +19,7 @@ func MatchDispatcher(patterns []string, candidates []string, count int, sep stri
 			continue
 		} else if candidateAbs, _ := filepath.Abs(candidate); candidateAbs == cwd {
 			continue
-		} else if info, _ := os.Stat(candidate); !info.IsDir() {
+		} else if info, err := os.Stat(candidate); err != nil || !info.IsDir() {
 			continue
 		}
 
@@ -47,7 +47,7 @@ func MatchDispatcher(patterns []string, candidates []string, count int, sep stri
 		for idx, candidate := range candidates {
 			if candidate == cwd {
 				continue
-			} else if info, _ := os.Stat(candidate); !info.IsDir() {
+			} else if info, err := os.Stat(candidate); err != nil || !info.IsDir() {
 				continue
 			}
 

@@ -1,9 +1,10 @@
-package fastjump
+package jumper
 
 import (
 	"encoding/gob"
 	"encoding/json"
 	"fastjump/utils"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -99,13 +100,15 @@ func (j *Jumper) loadDB() {
 	}
 }
 
-func (j *Jumper) updateDB(path string, idx *int) {
-	if idx != nil {
-		j.db = append(j.db[:*idx], j.db[*idx+1:]...)
+func (j *Jumper) updateDB(path string, idx int) {
+	if idx != -1 {
+		j.db = append(j.db[:idx], j.db[idx+1:]...)
 	}
 
 	j.db = append([]string{path}, j.db...)
-	j.db = j.db[:j.conf.NHistory]
+	if len(j.db) > j.conf.NHistory {
+		j.db = j.db[:j.conf.NHistory]
+	}
 
 	file, err := os.Create(j.dbPath)
 	if err != nil {
@@ -119,5 +122,66 @@ func (j *Jumper) updateDB(path string, idx *int) {
 	}
 }
 
-func (j *Jumper) Jump(patterns []string) {
+func (j *Jumper) Jump(patterns []string) string {
+	if len(patterns) == 0 {
+		patterns = []string{utils.ExpandUser("~")}
+	}
+
+	if len(patterns) == 1 {
+		if info, err := os.Stat(patterns[0]); err == nil && info.IsDir() {
+			path, _ := filepath.Abs(utils.ExpandUser(patterns[0]))
+			idx := -1
+			for i, p := range j.db {
+				if p == path {
+					idx = i
+					break
+				}
+			}
+			j.updateDB(path, idx)
+			return path
+		}
+	}
+
+	rst := MatchDispatcher(patterns, j.db, 1, j.conf.Sep)
+
+	if len(rst) == 0 {
+		return ""
+	}
+
+	idx, matched := rst[0].index, rst[0].path
+	j.updateDB(matched, idx)
+	return matched
+}
+
+func (j *Jumper) Hint(patterns []string) (ret []string) {
+	rst := MatchDispatcher(patterns, j.db, j.conf.NHint, j.conf.Sep)
+	for _, rstTuple := range rst {
+		ret = append(ret, rstTuple.path)
+	}
+	return
+}
+
+func (j *Jumper) Clean() {
+	oldLen := len(j.db)
+
+	newDb := []string{}
+	for _, path := range j.db {
+		if info, err := os.Stat(path); err == nil && info.IsDir() {
+			newDb = append(newDb, path)
+		}
+	}
+	j.db = newDb
+
+	file, err := os.Create(j.dbPath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	encoder := gob.NewEncoder(file)
+	err = encoder.Encode(j.db)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Removed %d non existent paths.\n", oldLen-len(j.db))
 }

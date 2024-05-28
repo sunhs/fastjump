@@ -1,11 +1,7 @@
 package main
 
-import (
-	"audit_pressure/cmd"
-	"log"
-)
+import "fastjump/cmd"
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	cmd.Execute()
 }
